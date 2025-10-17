@@ -1,0 +1,102 @@
+module vending_machine(coin_10,coin_20,coin_40,p1,p2,p3,reset,clk,dispense,return_amount);
+
+  input coin_10,coin_20,coin_40;
+  input p1,p2,p3,reset,clk;
+  output reg dispense,return_amount;
+  
+  parameter Idle = 2'b00;
+  parameter Coin_inserted = 2'b01;
+  parameter Return_change = 2'b10;
+  
+  reg [1:0] state, next_state;
+  reg [7:0] amount;
+
+  
+  always @(posedge clk) 
+    begin
+     if (reset) 
+       begin
+         state <= Idle;
+         amount <= 0;
+       end 
+     else 
+       begin
+         state <= next_state;
+       end
+    end
+
+  
+  always @(*) 
+   begin
+    next_state = state;
+    dispense = 0;
+    return_amount = 0;
+
+    case (state)
+      Idle: begin
+        $display("Insert the coin");
+        if (coin_10) 
+          begin
+             next_state = Coin_inserted;
+             amount = 10;
+          end 
+        else if (coin_20) 
+          begin
+             next_state = Coin_inserted;
+             amount = 20;
+          end 
+        else if (coin_40)
+          begin
+            next_state = Coin_inserted;
+            amount = 40;
+          end
+      end
+
+     
+    
+      Coin_inserted:
+       begin
+        $display("Enter the product");
+
+        if (p1 && (amount >= 10)) 
+          begin
+             $display("Dispensing product 1");
+             dispense = 1;
+             amount = amount - 10;
+            if 
+                (amount > 0) next_state = Return_change;
+            else 
+                 next_state = Idle;
+          end 
+        else if (p2 && (amount >= 20)) 
+           begin
+              $display("Dispensing product 2");
+              dispense = 1;
+              amount = amount - 20;
+              if (amount > 0) 
+                 next_state = Return_change;
+              else 
+                 next_state = Idle;
+           end 
+        else if (p3 && (amount >= 40)) 
+          begin
+              $display("Dispensing product 3");
+              dispense = 1;
+              amount = amount - 40;
+              if 
+                (amount > 0) next_state = Return_change;
+              else 
+                next_state = Idle;
+          end
+      end
+
+     
+      Return_change: begin
+                        $display("State: RETURN_CHANGE - Returning Change: %d", amount);
+                        return_amount = 1;
+                        next_state = Idle;
+                     end
+    endcase
+  end
+
+endmodule
