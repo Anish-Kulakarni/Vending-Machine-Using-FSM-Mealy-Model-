@@ -1,0 +1,41 @@
+module tb_vending_machine;
+
+  reg coin_10, coin_20, coin_40;
+  reg p1, p2, p3;
+  reg reset, clk;
+  wire dispense, return_amount;
+
+  vending_machine uut (
+    .coin_10(coin_10),
+    .coin_20(coin_20),
+    .coin_40(coin_40),
+    .p1(p1),
+    .p2(p2),
+    .p3(p3),
+    .reset(reset),
+    .clk(clk),
+    .dispense(dispense),
+    .return_amount(return_amount)
+  );
+
+  initial clk = 0;
+  always #5 clk = ~clk;
+
+  initial begin
+    reset = 1; coin_10 = 0; coin_20 = 0; coin_40 = 0;
+    p1 = 0; p2 = 0; p3 = 0;
+    #10 reset = 0;
+    
+    coin_10 = 1; #10 coin_10 = 0;
+    #10 p1 = 1; #10 p1 = 0;
+
+    coin_20 = 1; #10 coin_20 = 0;
+    #10 p2 = 1; #10 p2 = 0;
+
+    coin_40 = 1; #10 coin_40 = 0;
+    #10 p3 = 1; #10 p3 = 0;
+
+    #50 $finish;
+  end
+
+endmodule
